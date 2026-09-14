@@ -19,12 +19,22 @@ jobs:
             dist/github-contribution-grid-snake.svg?palette=github-light
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snake
+          path: dist
+
   deploy:
     needs: [generate]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: snake
+          path: dist
+
       - uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output

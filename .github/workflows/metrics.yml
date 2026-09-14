@@ -32,8 +32,11 @@ jobs:
           plugin_activity: yes
           plugin_activity_limit: 5
           plugin_activity_days: 14
-          plugin_streak: yes
           filename: metrics.svg
+          output_action: commit
+          committer_branch: output
+          committer_token: ${{ secrets.METRICS_TOKEN }}
+          committer_message: "chore: update metrics.svg [skip ci]"
 
       - uses: lowlighter/metrics@latest
         with:
@@ -44,25 +47,7 @@ jobs:
           plugin_isocalendar: yes
           plugin_isocalendar_duration: half-year
           filename: isocalendar.svg
-
-      # publish generated SVGs to the output branch
-      - uses: actions/checkout@v4
-        with:
-          ref: output
-          path: out
-        if: always()
-
-      - run: |
-          mkdir -p out
-          cp -f metrics.svg isocalendar.svg out/ 2>/dev/null || true
-      - name: Commit to output branch
-        run: |
-          cd out
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A || true
-          git diff --cached --quiet && exit 0
-          git commit -m "chore: regenerate metrics [skip ci]"
-          git push origin output
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          output_action: commit
+          committer_branch: output
+          committer_token: ${{ secrets.METRICS_TOKEN }}
+          committer_message: "chore: update isocalendar.svg [skip ci]"
