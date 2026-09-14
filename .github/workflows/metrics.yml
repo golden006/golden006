@@ -19,7 +19,7 @@ jobs:
           token: ${{ secrets.METRICS_TOKEN }}
           user: golden006
           template: classic
-          base: header, activity, community, repositories, metadata
+          base: header, repositories, community, metadata
           config_timezone: America/Denver
           config_output: svg
           config_twemoji: yes
@@ -28,10 +28,6 @@ jobs:
           plugin_languages_limit: 8
           plugin_languages_threshold: 2%
           plugin_stars: yes
-          plugin_followup: yes
-          plugin_activity: yes
-          plugin_activity_limit: 5
-          plugin_activity_days: 14
           filename: metrics.svg
           output_action: commit
           committer_branch: output
