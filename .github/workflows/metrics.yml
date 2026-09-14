@@ -1,0 +1,68 @@
+name: Metrics
+
+on:
+  schedule:
+    - cron: "0 3 * * 0" # Sundays 3 AM UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          user: golden006
+          template: classic
+          base: header, activity, community, repositories, metadata
+          config_timezone: America/Denver
+          config_output: svg
+          config_twemoji: yes
+          plugin_isocalendar: yes
+          plugin_languages: yes
+          plugin_languages_limit: 8
+          plugin_languages_threshold: 2%
+          plugin_stars: yes
+          plugin_followup: yes
+          plugin_activity: yes
+          plugin_activity_limit: 5
+          plugin_activity_days: 14
+          plugin_streak: yes
+          filename: metrics.svg
+
+      - uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          user: golden006
+          template: classic
+          base: ""
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: half-year
+          filename: isocalendar.svg
+
+      # publish generated SVGs to the output branch
+      - uses: actions/checkout@v4
+        with:
+          ref: output
+          path: out
+        if: always()
+
+      - run: |
+          mkdir -p out
+          cp -f metrics.svg isocalendar.svg out/ 2>/dev/null || true
+      - name: Commit to output branch
+        run: |
+          cd out
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A || true
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: regenerate metrics [skip ci]"
+          git push origin output
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
